@@ -1,21 +1,8 @@
-/*
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/aspect-ratio'),
-    ],
-  }
-  ```
-*/
 import { Fragment, useState } from 'react';
 import { Dialog, Popover, Tab, Transition } from '@headlessui/react';
 import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Avatar, Button, Menu, MenuItem } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
 
 const navigation = {
   categories: [
@@ -146,27 +133,28 @@ function classNames(...classes) {
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
-  const[openAuthModel,setOpenAuthModel]=useState(false);
-  const[anchorEl,setAnchorEl]=useState(null);
+  const [openAuthModel, setOpenAuthModel] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const openUserMenu = Boolean(anchorEl);
   const jwt = localStorage.getItem('jwt');
+  const navigate = useNavigate();
 
-  const handleUserClick = (event) =>{
+  const handleUserClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleCloseUserMenu = (event)=>{
+  const handleCloseUserMenu = (event) => {
     setAnchorEl(null);
   }
-  const handleopen =()=>{
+  const handleopen = () => {
     setOpenAuthModel(true);
   }
-const handleClose=()=>{
-  setOpenAuthModel(false)
-}
-// const handleCateClick = ()=>{
-//   // naigate(`/${category.id}/${section.id}/${item.id}`);
-//   close();
-// }
+  const handleClose = () => {
+    setOpenAuthModel(false)
+  }
+  const handleCategoryClick = (category, section, item, close) => {
+    navigate(`/${category.id}/${section.id}/${item.id}`);
+    close();
+  }
 
   return (
     <div className="bg-white z-50">
@@ -331,14 +319,14 @@ const handleClose=()=>{
 
               {/* Logo */}
               <div className="ml-4 flex lg:ml-0">
-                <a href="#">
+                <Link to='/' className='cursor-pointer'>
                   <span className="sr-only">Your Company</span>
                   <img
                     className="h-8 w-auto"
                     src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
                     alt=""
                   />
-                </a>
+                </Link>
               </div>
 
               {/* Flyout menus */}
@@ -346,7 +334,7 @@ const handleClose=()=>{
                 <div className="flex h-full space-x-8">
                   {navigation.categories.map((category) => (
                     <Popover key={category.name} className="flex">
-                      {({ open }) => (
+                      {({ open, close}) => (
                         <>
                           <div className="relative flex">
                             <Popover.Button
@@ -410,9 +398,9 @@ const handleClose=()=>{
                                           >
                                             {section.items.map((item) => (
                                               <li key={item.name} className="flex">
-                                                <a href={item.href} className="hover:text-gray-800">
+                                                <p  onClick={()=>handleCategoryClick(category,section,item,close)} className="hover:text-gray-800 cursor-pointer">
                                                   {item.name}
-                                                </a>
+                                                </p>
                                               </li>
                                             ))}
                                           </ul>
@@ -444,45 +432,45 @@ const handleClose=()=>{
               <div className="ml-auto flex items-center">
                 <div className='hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6'>
                   {true ? (
-                     <div>
-                     <Avatar
-                       className='text-white'
-                       onClick={handleUserClick}
-                       aria-aria-controls={open ? "basic-menu" : undefined}
-                       aria-aria-haspopup="true"
-                       aria-aria-expanded={open ? "true" : undefined}
-                       sx={{
-                         bgcolor: 'deepPurple[500]', color: 'white', cursor: 'pointer'
-                       }}
-                     >
-                       M
-                     </Avatar>
-                     <Menu
-                       id='basic-menu'
-                       anchorEl={anchorEl}
-                       open={openUserMenu}
-                       onClose={handleCloseUserMenu}
-                       MenuListProps={{
-                         "aria-labelledby": "basic-button",
-                       }}
-                       className='w-64'
-                     >
-                       <MenuItem onClick={handleCloseUserMenu}>
-                         Profile
-                       </MenuItem>
-                       <MenuItem onClick={handleCloseUserMenu}>
-                         Order
-                       </MenuItem>
-                       <MenuItem onClick={handleCloseUserMenu}>
-                         Logout
-                       </MenuItem>
-                     </Menu>
-                   </div>
-                   ):(
+                    <div>
+                      <Avatar
+                        className='text-white'
+                        onClick={handleUserClick}
+                        aria-aria-controls={open ? "basic-menu" : undefined}
+                        aria-aria-haspopup="true"
+                        aria-aria-expanded={open ? "true" : undefined}
+                        sx={{
+                          bgcolor: 'deepPurple[500]', color: 'white', cursor: 'pointer'
+                        }}
+                      >
+                        M
+                      </Avatar>
+                      <Menu
+                        id='basic-menu'
+                        anchorEl={anchorEl}
+                        open={openUserMenu}
+                        onClose={handleCloseUserMenu}
+                        MenuListProps={{
+                          "aria-labelledby": "basic-button",
+                        }}
+                        className='w-64'
+                      >
+                        <MenuItem onClick={handleCloseUserMenu}>
+                          Profile
+                        </MenuItem>
+                        <MenuItem onClick={()=>navigate('/account/order')}>
+                          Order
+                        </MenuItem>
+                        <MenuItem onClick={handleCloseUserMenu}>
+                          Logout
+                        </MenuItem>
+                      </Menu>
+                    </div>
+                  ) : (
                     <Button onClick={handleopen} className='text-sm font-medium text-gray-700 hover:text-gray-800'>
                       Sign In
                     </Button>
-                   )}
+                  )}
                 </div>
 
                 {/* Search */}
@@ -495,7 +483,7 @@ const handleClose=()=>{
 
                 {/* Cart */}
                 <div className="ml-4 flow-root lg:ml-6">
-                  <a href="#" className="group -m-2 flex items-center p-2">
+                  <a onClick={()=>navigate('/cart')} className="group -m-2 flex items-center p-2">
                     <ShoppingBagIcon
                       className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
                       aria-hidden="true"
